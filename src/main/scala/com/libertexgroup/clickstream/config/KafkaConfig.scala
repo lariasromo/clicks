@@ -21,8 +21,8 @@ object KafkaConfig {
       consumerGroup <- system.envOrElse("CONSUMER_GROUP", throw new Exception("Variable CONSUMER_GROUP should be set"))
       kafkaAudienceTopic <- system.envOrElse("AUDIENCE_TOPIC", throw new Exception("Variable AUDIENCE_TOPIC should be set"))
       kafkaAdjustTopic <- system.envOrElse("ADJUST_TOPIC", throw new Exception("Variable ADJUST_TOPIC should be set"))
-      flushSeconds <- system.env("FLUSH_SECONDS")
-      batchSize <- system.env("BATCH_SIZE")
+      flushSeconds <- system.env("KAFKA_FLUSH_SECONDS")
+      batchSize <- system.env("KAFKA_BATCH_SIZE")
     } yield Config(
         kafkaAudienceTopic,
         kafkaAdjustTopic,

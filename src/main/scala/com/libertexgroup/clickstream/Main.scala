@@ -41,7 +41,6 @@ object Main extends zio.App {
       layer <- ZIO( Clock.live ++ system.System.live ++ Console.live ++ kafkaLayer ++ programConfigLayer )
 
       _ <- streamingProgram.provideLayer(layer)
-//      _ <- putStrLn(s"Got ${result.toList.length} messages")
     } yield ()
       ).orDie.as(ExitCode.success)
   }

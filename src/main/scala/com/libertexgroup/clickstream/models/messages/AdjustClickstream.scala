@@ -31,7 +31,6 @@ object AdjustClickstream {
           idfa = parsed.get("idfa"),
           trackerType = if(parsed.contains("idfa") || parsed.getOrElse("idfa", "").isEmpty)
             TrackerType.Idfa.toString else TrackerType.GpsAdid.toString,
-          //      uriParamsCompressed = Array.emptyByteArray
           uriParamsJson = write(parsed)
         ))
     } else {

@@ -12,7 +12,8 @@ CREATE TABLE alexandria.clickstream
     `trackerType` String,
     `createdAt` DateTime32,
     `origin` String,
-    `uriParamsJson` JSON
+    `uriParamsJson` JSON,
+    insertedAt timestamp
 )
     ENGINE = MergeTree()
 ORDER BY (origin, "trackerType", "sessionId", "visitorId", "gpsAdid", idfa, broker)
