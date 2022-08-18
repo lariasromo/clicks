@@ -1,0 +1,12 @@
+KAFKA_BROKERS="0.dual.kafka.qa-fxenv.com:9092,1.dual.kafka.qa-fxenv.com:9092,2.dual.kafka.qa-fxenv.com:9092"
+CONSUMER_GROUP=clickstreamPipeline
+AUDIENCE_TOPIC=topicaudience1
+ADJUST_TOPIC=adjust1
+TARGET=clickhouse
+CLICKHOUSE_BATCH_SIZE=1000
+CLICKHOUSE_HOST=localhost
+CLICKHOUSE_DATABASE_NAME=alexandria
+CLICKHOUSE_TABLE_NAME=clickstream
+CLICKHOUSE_USERNAME=username
+CLICKHOUSE_PASSWORD=password
+CLICKHOUSE_DRIVER=com.clickhouse.jdbc.ClickHouseDriver
