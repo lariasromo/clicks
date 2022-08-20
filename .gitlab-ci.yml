@@ -1,0 +1,31 @@
+before_script:
+  - export SERVICE_NAME="alexandria/clickstream-clickhouse-pipeline"
+  #Getting image tag for ecr from version in build.sbt file
+  - export SERVICE_VERSION=`cat build.sbt | grep version | awk -F '"' '{print $2}'`
+  - export AWS_ECR_REPO="895855336803.dkr.ecr.us-east-1.amazonaws.com/alexandria/clickstream-clickhouse-pipeline"
+  - export AWS_ECR_REGION="us-east-1"
+  #Login to ecr
+  - aws ecr get-login-password --region ${AWS_ECR_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_REPO}
+  #Scan ecr for tags as in the build.sbt file
+  - export ECR_IMAGE_TAG=`aws ecr describe-images --region ${AWS_ECR_REGION} --repository-name ${SERVICE_NAME} --image-ids=imageTag=${SERVICE_VERSION} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text 2> /dev/null`
+
+
+stages:
+  - build
+
+build-job:
+  stage: build
+  only:
+    - main
+  script:
+    - sbt docker:publishLocal
+    - >   #If image tag already in ecr - retag with commit hash and push, else just push
+      if [  "$SERVICE_VERSION" = "$ECR_IMAGE_TAG" ]; 
+        then 
+        echo "image tag is already exist in ECR repository, adding hash commit to tag and pushing...";
+        docker tag ${AWS_ECR_REPO}:${SERVICE_VERSION} ${AWS_ECR_REPO}:${SERVICE_VERSION}-${CI_COMMIT_SHORT_SHA};
+        docker push ${AWS_ECR_REPO}:${SERVICE_VERSION}-${CI_COMMIT_SHORT_SHA}
+      else 
+         echo "image tag is not exist in ECR repository, pushing..."; 
+         docker push ${AWS_ECR_REPO}:${SERVICE_VERSION}
+      fi

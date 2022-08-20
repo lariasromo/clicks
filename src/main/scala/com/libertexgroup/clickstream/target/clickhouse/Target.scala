@@ -6,6 +6,8 @@ import com.libertexgroup.clickstream.target.JDBCUtils.getConnectionResource
 import zio.console.{Console, putStrLn}
 import zio.{Chunk, Has, ZIO}
 
+import java.time.{LocalDate, LocalDateTime}
+
 object Target {
   def writeClickstream(dataset: Chunk[UnifiedClickstream]): ZIO[Console with Has[ProgramConfig], Throwable, Unit] =
     for {
@@ -23,7 +25,7 @@ object Target {
               "(clientId, eventType, country, broker,      sessionId, " +
               "visitorId, gpsAdid,   idfa,    trackerType, createdAt, " +
               "origin,    uriParamsJson, insertedAt) VALUES " +
-              "(?, ?, ?, ?, ?,    ?, ?, ?, ?, parseDateTimeBestEffortOrNull(?),    ?, ?, now())"
+              "(?, ?, ?, ?, ?,    ?, ?, ?, ?, ?,    ?, ?, ?)"
           )
 
           dataset.split(config.clickhouseConfig.batchSize).foreach(chunks => {
@@ -37,9 +39,10 @@ object Target {
               statement.setString(7, r.gpsAdid.getOrElse(""))
               statement.setString(8, r.idfa.getOrElse(""))
               statement.setString(9, r.trackerType)
-              statement.setTimestamp(10, r.createdAt)
+              statement.setLong(10, r.createdAt.getTime)
               statement.setString(11, r.origin)
-              statement.setObject(12, r.uriParamsJson)
+              statement.setString(12, r.uriParamsJson)
+              statement.setLong(13, System.currentTimeMillis())
               statement.addBatch()
             })
             statement.executeBatch()
@@ -63,12 +66,13 @@ object Target {
           val statement = conn.prepareStatement(
             "INSERT INTO " + config.clickhouseConfig.dbtableDLQ +
               "(topic, value, createdDate) VALUES " +
-              "(?, ?, now())")
+              "(?, ?, ?)")
 
           dataset.split(config.clickhouseConfig.batchSize).foreach(chunks => {
             chunks.foreach(r => {
               statement.setString(1, r.topic)
               statement.setString(2, r.message)
+              statement.setLong(3, System.currentTimeMillis())
               statement.addBatch()
             })
             statement.executeBatch()

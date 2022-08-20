@@ -37,6 +37,6 @@ object Config {
     tableName = tableName.getOrElse(""),
     username = username.getOrElse(""),
     password = password.getOrElse(""),
-    driver = driver.getOrElse("com.github.housepower.jdbc.ClickHouseDriver"),
+    driver = driver.getOrElse("com.clickhouse.jdbc.ClickHouseDriver"),
   )
 }
